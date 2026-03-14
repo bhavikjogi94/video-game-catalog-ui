@@ -1,7 +1,8 @@
 import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 /**
  * Root application configuration — standalone, no NgModule.
@@ -15,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     // Angular Router with our route definitions
     provideRouter(routes),
 
-    // HttpClient for data-access services (replaces HttpClientModule)
-    provideHttpClient(),
+    // HttpClient for data-access services, with global error interceptor for toasts
+    provideHttpClient(withInterceptors([errorInterceptor])),
   ],
 };

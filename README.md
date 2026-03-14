@@ -1,59 +1,72 @@
-# VideoGameCatalogUi
+# Video Game Catalog UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+This is the frontend client for the Video Game Catalog project. It's a modern, standalone Angular application built to browse, add, edit, and delete video games.
 
-## Development server
+## Tech Stack
+* **Framework:** Angular 21 (Standalone Components, no `NgModule`)
+* **State Management:** Angular Signals (`signal`, `computed`, `effect`)
+* **Styling & Components:** Bootstrap 5.3.8 with `ng-bootstrap`
+* **HTTP:** Angular `HttpClient` wrapped in dedicated services for clean architecture
 
-To start a local development server, run:
+## Project Structure
 
-```bash
-ng serve
+```text
+src/
+├── app/
+│   ├── core/
+│   │   ├── data-access/              ← API HTTP Wrappers
+│   │   │   ├── games.service.ts      
+│   │   │   ├── genres.service.ts     
+│   │   │   └── platforms.service.ts  
+│   │   ├── interceptors/
+│   │   │   └── error.interceptor.ts  ← Global HTTP Error Handler
+│   │   └── services/
+│   │       └── toast.service.ts      ← Notification Signal State
+│   │
+│   ├── models/                       ← TypeScript interfaces (DTOs)
+│   │   ├── video-game.model.ts
+│   │   ├── genre.model.ts
+│   │   └── platform.model.ts
+│   │
+│   ├── pages/
+│   │   ├── video-game-list/
+│   │   │   └── video-game-list.component.ts   ← Page 1 (Game Table)
+│   │   └── video-game-form/
+│   │       └── video-game-form.component.ts     ← Page 2 (Reactive Form)
+│   │
+│   ├── shared/components/
+│   │   └── toasts-container.component.ts
+│   │
+│   ├── app.routes.ts                 ← Eager / Lazy routing map
+│   └── app.config.ts                 ← Root provider context
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Features & Architecture highlights
 
-## Code scaffolding
+* **100% Standalone:** I decided not to use `AppModule` or any `NgModules`. Every component imports exactly what it needs directly, which keeps the bundle sizes small and the code extremely modern.
+* **Signals Everywhere:** All the reactive state is managed using Signals instead of heavy RxJS Observables. This allowed me to remove `zone.js` and switch completely to **Zoneless Change Detection** (`provideZonelessChangeDetection()`), which makes the app incredibly fast and snappier.
+* **Clean Data Access:** The components don't make HTTP calls directly. Instead, HTTP logic is decoupled into the `core/data-access` services layer.
+* **Lazy Loading:** The "Browse" page loads instantly on startup, but the "Edit" page routes are fetched via dynamic lazy-loading `loadComponent` since users won't always need them immediately.
+* **Global Error Handling:** I added a global `HttpInterceptor` that catches API failures or network drops. If the API returns a 404 or 500 error, instead of breaking the app, the interceptor parses the API's `ProblemDetails` message and triggers a nice, friendly Bootstrap Toast popup.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting Started
 
-```bash
-ng generate component component-name
-```
+### Prerequisites
+* Node.js and npm installed
+* Angular CLI (`npm install -g @angular/cli`)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Running the App Locally
 
-```bash
-ng generate --help
-```
+1. Make sure the backend API (`VideoGameCatalog.Api`) is running via IIS Express on port `44371` (`https://localhost:44371`). 
+2. Open a terminal in this `video-game-catalog-ui` folder.
+3. Install the dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the Angular development server:
+   ```bash
+   ng serve
+   ```
+5. Open your browser and navigate to `http://localhost:4200/`.
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+That's it! You should see the browse table populating with the seeded API games. Have fun!

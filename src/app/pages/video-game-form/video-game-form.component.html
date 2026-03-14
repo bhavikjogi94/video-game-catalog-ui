@@ -1,0 +1,115 @@
+<div class="container mt-4" style="max-width: 640px;">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">{{ pageTitle() }}</h1>
+    <button class="btn btn-outline-secondary btn-sm" (click)="onCancel()">← Back to List</button>
+  </div>
+
+  <!-- Loading spinner while fetching existing game data -->
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Error alert -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+
+  <!-- Form — hidden while loading -->
+  @if (!isLoading()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Title -->
+      <div class="mb-3">
+        <label for="title" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+        <input id="title" formControlName="title" type="text"
+               class="form-control" [class.is-invalid]="isInvalid('title')" />
+        @if (isInvalid('title')) {
+          <div class="invalid-feedback">
+            @if (form.controls.title.errors?.['required']) { Title is required. }
+            @if (form.controls.title.errors?.['maxlength']) { Title cannot exceed 200 characters. }
+          </div>
+        }
+      </div>
+
+      <!-- Developer -->
+      <div class="mb-3">
+        <label for="developer" class="form-label fw-semibold">Developer <span class="text-danger">*</span></label>
+        <input id="developer" formControlName="developer" type="text"
+               class="form-control" [class.is-invalid]="isInvalid('developer')" />
+        @if (isInvalid('developer')) {
+          <div class="invalid-feedback">Developer is required.</div>
+        }
+      </div>
+
+      <!-- Release Year -->
+      <div class="mb-3">
+        <label for="releaseYear" class="form-label fw-semibold">Release Year <span class="text-danger">*</span></label>
+        <input id="releaseYear" formControlName="releaseYear" type="number"
+               class="form-control" [class.is-invalid]="isInvalid('releaseYear')" />
+        @if (isInvalid('releaseYear')) {
+          <div class="invalid-feedback">
+            @if (form.controls.releaseYear.errors?.['required']) { Release year is required. }
+            @if (form.controls.releaseYear.errors?.['min']) { Year must be 1950 or later. }
+            @if (form.controls.releaseYear.errors?.['max']) { Year cannot be beyond 2100. }
+          </div>
+        }
+      </div>
+
+      <!-- Genre dropdown -->
+      <div class="mb-3">
+        <label for="genreId" class="form-label fw-semibold">Genre <span class="text-danger">*</span></label>
+        <select id="genreId" formControlName="genreId"
+                class="form-select" [class.is-invalid]="isInvalid('genreId')">
+          <option [ngValue]="null" disabled>Select a genre…</option>
+          @for (genre of genres(); track genre.id) {
+            <option [ngValue]="genre.id">{{ genre.name }}</option>
+          }
+        </select>
+        @if (isInvalid('genreId')) {
+          <div class="invalid-feedback">Please select a genre.</div>
+        }
+      </div>
+
+      <!-- Platform dropdown -->
+      <div class="mb-3">
+        <label for="platformId" class="form-label fw-semibold">Platform <span class="text-danger">*</span></label>
+        <select id="platformId" formControlName="platformId"
+                class="form-select" [class.is-invalid]="isInvalid('platformId')">
+          <option [ngValue]="null" disabled>Select a platform…</option>
+          @for (platform of platforms(); track platform.id) {
+            <option [ngValue]="platform.id">{{ platform.name }}</option>
+          }
+        </select>
+        @if (isInvalid('platformId')) {
+          <div class="invalid-feedback">Please select a platform.</div>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="mb-4">
+        <label for="description" class="form-label fw-semibold">Description</label>
+        <textarea id="description" formControlName="description"
+                  class="form-control" rows="3"
+                  placeholder="Short description of the game (optional)"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          }
+          {{ isEditMode() ? 'Save Changes' : 'Create Game' }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancel</button>
+      </div>
+
+    </form>
+  }
+
+</div>

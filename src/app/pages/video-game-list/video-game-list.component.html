@@ -1,0 +1,108 @@
+<div class="container mt-4">
+
+  <!-- Page header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Video Game Catalogue</h1>
+    <button class="btn btn-primary" (click)="navigateToCreate()">+ Add New Game</button>
+  </div>
+
+  <!-- Search bar + page size selector -->
+  <div class="d-flex gap-2 mb-3">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search by title..."
+      (input)="onSearch($any($event.target).value)"
+    />
+    <select
+      class="form-select"
+      style="width: auto; min-width: 130px"
+      [value]="pageSize()"
+      (change)="onPageSizeChange(+$any($event.target).value)"
+    >
+      @for (opt of pageSizeOptions; track opt) {
+        <option [value]="opt">{{ opt }} per page</option>
+      }
+    </select>
+  </div>
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Games table -->
+  @if (!isLoading()) {
+    <table class="table table-hover table-bordered align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th style="cursor:pointer" (click)="onSort('title')">
+            Title <span class="ms-1 text-muted small">{{ sortIcon('title') }}</span>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('developer')">
+            Developer <span class="ms-1 text-muted small">{{ sortIcon('developer') }}</span>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('releaseYear')">
+            Year <span class="ms-1 text-muted small">{{ sortIcon('releaseYear') }}</span>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('genre')">
+            Genre <span class="ms-1 text-muted small">{{ sortIcon('genre') }}</span>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('platform')">
+            Platform <span class="ms-1 text-muted small">{{ sortIcon('platform') }}</span>
+          </th>
+          <th class="text-center" style="width: 160px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (game of games(); track game.id) {
+          <tr>
+            <td>{{ game.title }}</td>
+            <td>{{ game.developer }}</td>
+            <td>{{ game.releaseYear }}</td>
+            <td><span class="badge bg-secondary">{{ game.genreName }}</span></td>
+            <td>{{ game.platformName }}</td>
+            <td class="text-center">
+              <button
+                class="btn btn-sm btn-outline-primary me-1"
+                (click)="navigateToEdit(game.id)"
+              >Edit</button>
+              <button
+                class="btn btn-sm btn-outline-danger"
+                (click)="deleteGame(game.id)"
+              >Delete</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              No games found.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- Pagination — only shown when there are multiple pages -->
+    @if (totalCount() > pageSize()) {
+      <div class="d-flex justify-content-between align-items-center mt-2">
+        <small class="text-muted">
+          Showing {{ (currentPage() - 1) * pageSize() + 1 }}–{{ pageEnd() }} of {{ totalCount() }} games
+        </small>
+        <ngb-pagination
+          [collectionSize]="totalCount()"
+          [pageSize]="pageSize()"
+          [page]="currentPage()"
+          (pageChange)="onPageChange($event)"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+        />
+      </div>
+    }
+  }
+</div>
